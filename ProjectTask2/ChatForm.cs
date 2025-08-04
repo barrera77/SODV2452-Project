@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjectTask2.Utils;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -31,22 +32,28 @@ namespace ProjectTask2
 
             if (string.IsNullOrEmpty(message))
             {
-                return; 
+                return;
             }
 
-            
-            string fullMessage = $"{_username}: {message}";
-            byte[] messageBytes = Encoding.Unicode.GetBytes(fullMessage);
+            string formattedToSend;
+            try
+            {
+                formattedToSend = $"{_username}: {message}";
+                byte[] messageBytes = Encoding.Unicode.GetBytes(formattedToSend);
 
-            byte[] responseBytes = SendMessageToServer(messageBytes);
-            string response = Encoding.Unicode.GetString(responseBytes).TrimEnd('\0');
+                byte[] responseBytes = SendMessageToServer(messageBytes);
+                string response = Encoding.Unicode.GetString(responseBytes).TrimEnd('\0');
 
-            string timestamp = DateTime.Now.ToString("hh:mm tt"); 
+                // Use the extracted formatter to produce display-friendly string
+                string formattedForDisplay = MessageFormatter.Format(_username, response);
 
-            string formatted = $"[{timestamp}] {response}";
-            ChatHistoryBox.AppendText(formatted + Environment.NewLine);
-
-            MessageTextBox.Clear();
+                ChatHistoryBox.AppendText(formattedForDisplay + Environment.NewLine);
+                MessageTextBox.Clear();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error formatting or sending message: {ex.Message}");
+            }
         }
 
 
